@@ -38,6 +38,11 @@ app.get('/error', (req: Request, res: Response) => {
   res.status(500).send('Simulated error');
 });
 
+app.get('/error-more', (req: Request, res: Response) => {
+  logger.error('Something went wrong!');
+  res.status(500).send('Simulated error more');
+});
+
 app.listen(port, () => {
   logger.info(`Server is running at http://localhost:${port}`);
 });
