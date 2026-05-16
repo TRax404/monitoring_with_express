@@ -43,6 +43,52 @@ app.get('/error-more', (req: Request, res: Response) => {
   res.status(500).send('Simulated error more');
 });
 
+const users = [
+  { id: 1, name: 'Alice', email: 'alice@example.com' },
+  { id: 2, name: 'Bob', email: 'bob@example.com' },
+  { id: 3, name: 'Charlie', email: 'charlie@example.com' }
+];
+
+const products = [
+  { id: 101, name: 'Laptop', price: 999.99 },
+  { id: 102, name: 'Smartphone', price: 499.99 },
+  { id: 103, name: 'Headphones', price: 149.99 }
+];
+
+app.get('/users', (req: Request, res: Response) => {
+  logger.info('Fetching all users');
+  res.json(users);
+});
+
+app.get('/users/:id', (req: Request, res: Response) => {
+  const id = parseInt(req?.params?.id as any);
+  const user = users.find(u => u.id === id);
+  if (user) {
+    logger.info(`Found user: ${id}`);
+    res.json(user);
+  } else {
+    logger.warn(`User not found: ${id}`);
+    res.status(404).json({ error: 'User not found' });
+  }
+});
+
+app.get('/products', (req: Request, res: Response) => {
+  logger.info('Fetching all products');
+  res.json(products);
+});
+
+app.get('/products/:id', (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const product = products.find(p => p.id === id);
+  if (product) {
+    logger.info(`Found product: ${id}`);
+    res.json(product);
+  } else {
+    logger.warn(`Product not found: ${id}`);
+    res.status(404).json({ error: 'Product not found' });
+  }
+});
+
 app.listen(port, () => {
   logger.info(`Server is running at http://localhost:${port}`);
 });
