@@ -62,9 +62,20 @@ This will start:
   - `message`: Your custom message.
 - **Example**: `curl "http://localhost:3000/test-log?level=error&message=DatabaseTimeout"`
 
-### 3. Error Simulator
-`GET /error`
-- Forces an error-level log and returns a 500 status.
+### 3. Error Simulators
+- `GET /error`: Forces an error-level log and returns a 500 status.
+- `GET /error-more`: Another simulated error for testing log variety.
+
+### 4. Business Routes (Mock Data)
+- `GET /users`: Fetches a list of mock users.
+- `GET /users/:id`: Fetches a specific user by ID. Returns 404 if not found.
+- `GET /products`: Fetches a list of mock products.
+- `GET /products/:id`: Fetches a specific product by ID. Returns 404 if not found.
+
+### 5. Latency & Delay Testing
+- `GET /delay?ms=1000`: Simulates a request that takes exactly `ms` milliseconds.
+- `GET /random-delay?min=100&max=2000`: Simulates a request with a random delay between `min` and `max` milliseconds.
+  - Useful for testing Grafana response time panels and duration histograms.
 
 ---
 
