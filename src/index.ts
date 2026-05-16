@@ -89,6 +89,26 @@ app.get('/products/:id', (req: Request, res: Response) => {
   }
 });
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+app.get('/delay', async (req: Request, res: Response) => {
+  const ms = parseInt(req.query.ms as string) || 1000;
+  logger.info(`Starting delayed request: ${ms}ms`);
+  await sleep(ms);
+  logger.info(`Delayed request finished: ${ms}ms`);
+  res.json({ status: 'success', delay: ms });
+});
+
+app.get('/random-delay', async (req: Request, res: Response) => {
+  const min = parseInt(req.query.min as string) || 100;
+  const max = parseInt(req.query.max as string) || 2000;
+  const ms = Math.floor(Math.random() * (max - min + 1) + min);
+  logger.info(`Starting random delay request: ${ms}ms`);
+  await sleep(ms);
+  logger.info(`Random delay request finished: ${ms}ms`);
+  res.json({ status: 'success', delay: ms });
+});
+
 app.listen(port, () => {
   logger.info(`Server is running at http://localhost:${port}`);
 });
