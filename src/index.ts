@@ -80,6 +80,12 @@ app.get('/products', (req: Request, res: Response) => {
   res.json(products);
 });
 
+app.get('/products', (req: Request, res: Response) => {
+  logger.info('Fetching all products');
+  res.json(products);
+});
+
+
 app.get('/products/:id', (req: Request, res: Response) => {
   const id = parseInt(req.params.id as string);
   const product = products.find(p => p.id === id);
