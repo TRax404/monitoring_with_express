@@ -74,6 +74,8 @@ app.get('/users/:id', (req: Request, res: Response) => {
 
 
 
+
+
 app.get('/products', (req: Request, res: Response) => {
   logger.info('Fetching all products');
   res.json(products);
