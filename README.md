@@ -1,15 +1,15 @@
 # 📊 Monitoring Stack: Express + Loki + Grafana
 
-A streamlined, production-ready template for centralized logging using the Grafana-Loki stack with a TypeScript Express application.
+A streamlined, production-ready template for centralized logging and performance monitoring using the Grafana-Loki stack with a TypeScript Express application.
 
 ## 🚀 Overview
 
-This project demonstrates how to implement a robust logging architecture. Instead of logs living inside isolated containers, they are streamed to **Loki**, allowing you to query, filter, and visualize them globally via **Grafana**.
+This project demonstrates a robust logging and observability architecture. Beyond simple log collection, it implements **performance tracking** and **reliability testing** by capturing request metadata, latency, and status codes.
 
 ### Architecture
-- **Express App**: Node.js service using `winston` + `winston-loki` to ship logs.
-- **Grafana Loki**: The log aggregation engine (the "Prometheus for logs").
-- **Grafana**: The visualization dashboard.
+- **Express App**: Node.js service using `winston` + `winston-loki` for structured logging.
+- **Grafana Loki**: Log aggregation engine that indexes metadata for high-performance querying.
+- **Grafana**: Advanced visualization for logs, error rates, and latency distribution.
 
 ---
 
@@ -25,69 +25,60 @@ This project demonstrates how to implement a robust logging architecture. Instea
 
 ## 🚦 Getting Started
 
-### Prerequisites
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-
 ### 1. Spin up the infrastructure
 ```bash
 docker-compose up -d --build
 ```
-This will start:
-- App at `http://localhost:3000`
-- Loki at `http://localhost:3100`
-- Grafana at `http://localhost:3001`
+- **App**: `http://localhost:3000`
+- **Loki**: `http://localhost:3100`
+- **Grafana**: `http://localhost:3001`
 
-### 2. Configure Grafana
-1. Open **Grafana** at [http://localhost:3001](http://localhost:3001).
-2. Login (Anonymous Admin is enabled by default in this setup).
-3. Navigate to **Connections** > **Data Sources** > **Add data source**.
-4. Select **Loki**.
-5. Set the URL to `http://loki:3100`.
-6. Click **Save & Test**.
+### 2. Monitoring Configuration
+The project comes with **automatic provisioning**. Grafana is pre-configured with the Loki datasource and a default dashboard.
 
 ---
 
-## 🧪 API Reference
+## 🧪 Monitoring & Test Endpoints
 
-### 1. Root Endpoint
-`GET /`
-- Logs an "Accessing root endpoint" message.
-- Returns a welcome string.
+Use these endpoints to generate data and verify your monitoring dashboards.
 
-### 2. Dynamic Logger
-`GET /test-log?level={level}&message={msg}`
-- **Params**:
-  - `level`: `info`, `warn`, or `error` (default: `info`)
-  - `message`: Your custom message.
-- **Example**: `curl "http://localhost:3000/test-log?level=error&message=DatabaseTimeout"`
+### 📈 Performance & Latency
+Testing how your system handles different delay profiles:
+- `GET /test/latency?dist=normal`: Simulates typical latency (100ms - 500ms).
+- `GET /test/latency?dist=slow`: Simulates a slow backend (2s - 5s).
+- `GET /test/latency?dist=flaky`: Simulates intermittent issues (20% chance of 5s delay).
+- `GET /delay?ms=1000`: Fixed delay testing.
 
-### 3. Error Simulators
-- `GET /error`: Forces an error-level log and returns a 500 status.
-- `GET /error-more`: Another simulated error for testing log variety.
+### 🚨 Error Rate & Reliability
+Testing how your alerting handles failure scenarios:
+- `GET /test/error-rate?rate=0.7`: Controlled failure simulation (70% failure rate).
+- `GET /test/not-found`: Triggers a `404 Not Found` warning.
+- `GET /test/unauthorized`: Triggers a `401 Unauthorized` warning.
+- `GET /error`: Triggers a standard `500 Internal Server Error`.
 
-### 4. Business Routes (Mock Data)
-- `GET /users`: Fetches a list of mock users.
-- `GET /users/:id`: Fetches a specific user by ID. Returns 404 if not found.
-- `GET /products`: Fetches a list of mock products.
-- `GET /products/:id`: Fetches a specific product by ID. Returns 404 if not found.
-
-### 5. Latency & Delay Testing
-- `GET /delay?ms=1000`: Simulates a request that takes exactly `ms` milliseconds.
-- `GET /random-delay?min=100&max=2000`: Simulates a request with a random delay between `min` and `max` milliseconds.
-  - Useful for testing Grafana response time panels and duration histograms.
+### 📦 Payload Testing
+- `GET /test/heavy?size=2000`: Generates a large JSON response (approx 2MB) to test bandwidth and content-length logging.
 
 ---
 
-## 🔍 Visualizing Logs
+## 🔍 Observability Metrics
 
-1. In Grafana, go to the **Explore** tab (Compass icon).
-2. Select the **Loki** data source.
-3. In the query builder (Label browser), select:
-   - Label: `app`
-   - Value: `monitoring-app`
-4. Click **Run Query**.
-5. Switch to **Live** mode to see logs streaming in real-time!
+The application logs structured JSON data. You can query these metrics in Grafana using **LogQL**:
+
+### Average Request Time (Latency)
+```logql
+avg_over_time({app="monitoring-app"} | json | unwrap duration [5m])
+```
+
+### Error Count by Status Code
+```logql
+sum by (status) (count_over_time({app="monitoring-app"} | json | status =~ "5.." [1m]))
+```
+
+### 95th Percentile Latency
+```logql
+quantile_over_time(0.95, {app="monitoring-app"} | json | unwrap duration [5m])
+```
 
 ---
 
@@ -95,11 +86,13 @@ This will start:
 
 ```text
 ├── src/
-│   ├── index.ts    # Express server & endpoints
-│   └── logger.ts   # Winston configuration for Loki
+│   ├── index.ts    # Express server & enhanced monitoring routes
+│   └── logger.ts   # Winston structured logging config
+├── grafana/
+│   ├── provisioning/ # Auto-config for datasources & dashboards
+│   └── dashboards/   # Pre-built monitoring dashboards
 ├── docker.compose.yml
-├── Dockerfile
-└── package.json
+└── Dockerfile
 ```
 
 ---
