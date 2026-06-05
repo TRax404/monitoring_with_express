@@ -297,6 +297,59 @@
     },
     {
       "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 6,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "expr": "topk(5, sum by (url) (count_over_time({app=\"monitoring-app\"} | json | url != \"\" [15m])))",
+          "legendFormat": "{{url}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 5 Endpoints (Last 15m)",
+      "type": "table"
+    },
+    {
+      "datasource": "Loki",
       "gridPos": {
         "h": 12,
         "w": 24,
@@ -351,5 +404,5 @@
   "timezone": "",
   "title": "Application Dashboard",
   "uid": "app-dashboard",
-  "version": 3
+  "version": 4
 }
